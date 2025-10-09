@@ -5,7 +5,7 @@
 #include "UI.h"
 
 int main() {
-	sf::RenderWindow window(sf::VideoMode(1200, 800), "Just a game");
+	sf::RenderWindow window(sf::VideoMode({1200, 800}), "Just a game");
 	window.setFramerateLimit(60);
 	ImGui::SFML::Init(window);
 
@@ -14,10 +14,10 @@ int main() {
 
 	sf::Clock clock_delta;
 	while (window.isOpen()) {
-		sf::Event event;
-		while (window.pollEvent(event)) {
-			ImGui::SFML::ProcessEvent(event);
-			if (event.type == sf::Event::Closed) window.close();
+		while (const std::optional event = window.pollEvent()) {
+			ImGui::SFML::ProcessEvent(window, event.value());
+			if (event->is<sf::Event::Closed>())
+				window.close();
 		}
 
 		ImGui::SFML::Update(window, clock_delta.restart());
