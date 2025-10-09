@@ -3,5 +3,8 @@ project(insurance)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(insurance src/main.cpp)
+add_executable(insurance src/main.cpp
+        include/UI.h
+        include/GameState.h
+)
 
