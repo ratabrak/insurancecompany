@@ -1,13 +1,9 @@
-//
-// Created by Nikita Demenew on 09/10/2025.
-//
 #include <iostream>
+// #include "player.h"
 
 using namespace std;
 
 int main() {
 	cout << "Hello World! AHAHHAHHAHAHAH";
-	cout << "Hello World! AHAHHAHHAHAHAH";
-	cout << "Hello World! AHAHHAHHAHAHAH";
-        return 0;
+	return 0;
 }
