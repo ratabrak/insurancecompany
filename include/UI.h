@@ -91,52 +91,52 @@ inline void UI::DrawMainUI(GameState& state) {
         ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoCollapse);
 
     ImGui::SetCursorPos(ImVec2(20, 20));
-    if (ImGui::Button("Settings", ImVec2(100, 30))) {
+    if (ImGui::Button("Настройки", ImVec2(100, 30))) {
         state.settings_window_show = true;
     }
 
     ImGui::SetCursorPos(ImVec2(20, 550));
-    if (ImGui::Button("All current insurances", ImVec2(180, 30))) {
+    if (ImGui::Button("Все текущие страховки", ImVec2(180, 30))) {
         state.all_insurances_show = true;
     }
 
     ApplyBlueStyle();
     ImGui::SetCursorPos(ImVec2(20, 60));
     ImGui::BeginChild("Stats", ImVec2(300, 150), true);
-    ImGui::TextColored(BLUE_TITLE, "Company Statistics");
+    ImGui::TextColored(BLUE_TITLE, "Статистика компании");
     ImGui::Separator();
 
     if (state.balance >= 0) {
-        ImGui::TextColored(GREEN_COLOR, "Balance: %d", state.balance);
+        ImGui::TextColored(GREEN_COLOR, "Баланс: %d", state.balance);
     }
     else {
-        ImGui::TextColored(RED_COLOR, "Balance: %d", state.balance);
+        ImGui::TextColored(RED_COLOR, "Баланс: %d", state.balance);
     }
 
     if (state.monthly_income > 0) {
-        ImGui::TextColored(GREEN_COLOR, "Monthly Income: %d", state.monthly_income);
+        ImGui::TextColored(GREEN_COLOR, "Месячный доход: %d", state.monthly_income);
     }
     else {
-        ImGui::Text("Monthly Income: %d", state.monthly_income);
+        ImGui::Text("Месячный доход: %d", state.monthly_income);
     }
 
     if (state.monthly_payouts > 0) {
-        ImGui::TextColored(RED_COLOR, "Monthly Payouts: %d", state.monthly_payouts);
+        ImGui::TextColored(RED_COLOR, "Выплаты за месяц: %d", state.monthly_payouts);
     }
     else {
-        ImGui::Text("Monthly Payouts: %d", state.monthly_payouts);
+        ImGui::Text("Выплаты за месяц: %d", state.monthly_payouts);
     }
 
     int net_result = state.monthly_income - state.monthly_payouts;
     if (net_result >= 0) {
-        ImGui::TextColored(GREEN_COLOR, "Profit This Month: %d", net_result);
+        ImGui::TextColored(GREEN_COLOR, "Доход в этом месяце: %d", net_result);
     }
     else {
-        ImGui::TextColored(RED_COLOR, "Profit This Month: %d", net_result);
+        ImGui::TextColored(RED_COLOR, "Убыток в этом месяце: %d", net_result);
     }
 
-    ImGui::Text("Total Insured: %d", state.total_insured);
-    ImGui::Text("Total Coverage: %d", state.total_covered);
+    ImGui::Text("Всего застрахованы: %d", state.total_insured);
+    ImGui::Text("Общее покрытие: %d", state.total_covered);
     ImGui::EndChild();
     ResetStyle();
 
@@ -148,7 +148,7 @@ inline void UI::DrawMainUI(GameState& state) {
     ApplyBlueStyle();
     ImGui::SetCursorPos(ImVec2(880, 20));
     ImGui::BeginChild("Month", ImVec2(300, 60), true);
-    ImGui::TextColored(BLUE_TITLE, "Month: %d/24", state.curr_month);
+    ImGui::TextColored(BLUE_TITLE, "Месяц: %d/24", state.curr_month);
     ImGui::EndChild();
     ResetStyle();
 
@@ -157,16 +157,16 @@ inline void UI::DrawMainUI(GameState& state) {
 
 inline void UI::DrawInsuranceStats(GameState& state) {
     ImGui::BeginChild("InsuranceStats", ImVec2(300, 300), true);
-    ImGui::TextColored(BLUE_TITLE, "Insurance Types");
+    ImGui::TextColored(BLUE_TITLE, "Тип страховки");
     ImGui::Separator();
 
     for (int i = 0; i < 3; i++) {
         ImGui::PushID(i);
         ImGui::Text("%s:", state.insurances[i].name.c_str());
-        ImGui::Text("  Insured: %d", state.insurances[i].insured_count);
-        ImGui::Text("  Coverage: %d", state.insurances[i].max_payout);
-        ImGui::Text("  Monthly Fee: %d", state.insurances[i].monthly_fee);
-        ImGui::Text("  Base Demand: %d%%", state.insurances[i].base_demand);
+        ImGui::Text("  Застрахованы: %d", state.insurances[i].insured_count);
+        ImGui::Text("  Покрытие: %d", state.insurances[i].max_payout);
+        ImGui::Text("  Вознаграждение: %d", state.insurances[i].monthly_fee);
+        ImGui::Text("  Базовый спрос: %d%%", state.insurances[i].base_demand);
         if (i < 2) ImGui::Separator();
         ImGui::PopID();
     }
@@ -178,10 +178,10 @@ inline void UI::DrawEventsWindow(GameState& state) {
     ApplyYellowStyle();
     ImGui::SetNextWindowPos(ImVec2(200, 150), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(800, 500), ImGuiCond_Always);
-    ImGui::Begin("Monthly Report", nullptr,
+    ImGui::Begin("Месячный отчет", nullptr,
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-    ImGui::TextColored(YELLOW_TITLE, "Month %d Report:", state.curr_month);
+    ImGui::TextColored(YELLOW_TITLE, "Месяц %d Отчет:", state.curr_month);
     ImGui::Separator();
 
     for (const auto& event : state.monthly_events) {
@@ -218,7 +218,7 @@ inline void UI::DrawEventsWindow(GameState& state) {
     }
 
     ImGui::NewLine();
-    if (ImGui::Button("Continue to Clients", ImVec2(150, 30))) {
+    if (ImGui::Button("Перейти к клиентам", ImVec2(150, 30))) {
         state.event_window_show = false;
         state.clients_window_show = true;
         state.GenerateClients();
@@ -231,17 +231,17 @@ inline void UI::DrawClientsWindow(GameState& state) {
     ApplyYellowStyle();
     ImGui::SetNextWindowPos(ImVec2(200, 150), ImGuiCond_Always);
     ImGui::SetNextWindowSize(ImVec2(800, 500), ImGuiCond_Always);
-    ImGui::Begin("Client Management", nullptr,
+    ImGui::Begin("Управление клиентами", nullptr,
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-    ImGui::TextColored(YELLOW_TITLE, "New clients waiting for insurance decisions:");
+    ImGui::TextColored(YELLOW_TITLE, "Новые клиенты ожидают решения по страховкам:");
     ImGui::Separator();
 
     for (size_t i = 0; i < state.current_clients.size(); ++i) {
         auto& client = state.current_clients[i];
         ImGui::PushID(static_cast<int>(i));
 
-        ImGui::Text("Client %d", (int)i + 1);
+        ImGui::Text("Клиент %d", (int)i + 1);
         ImGui::SameLine(100);
         float risk_color = InsuranceSystem::GetRiskColor(client.risk_factor);
         ImVec4 color;
@@ -256,25 +256,25 @@ inline void UI::DrawClientsWindow(GameState& state) {
         }
 
         ImGui::PushStyleColor(ImGuiCol_Text, color);
-        ImGui::Text("Risk: %.1f%%", client.risk_factor);
+        ImGui::Text("Риск: %.1f%%", client.risk_factor);
         ImGui::PopStyleColor();
 
         ImGui::SameLine(250);
-        ImGui::Text("Insurance: %s", state.insurances[client.insurance_type].name.c_str());
+        ImGui::Text("Страховка: %s", state.insurances[client.insurance_type].name.c_str());
 
         ImGui::SameLine(450);
-        ImGui::Text("Monthly Fee: %d",
+        ImGui::Text("Вознаграждение: %d",
             InsuranceSystem::CalculateMonthlyFee(state.insurances[client.insurance_type], client.risk_factor));
 
         ImGui::SameLine(600);
-        ImGui::Checkbox("Approve", &client.approved);
+        ImGui::Checkbox("Принять", &client.approved);
 
         if (i < state.current_clients.size() - 1) ImGui::Separator();
         ImGui::PopID();
     }
 
     ImGui::NewLine();
-    if (ImGui::Button("Process Month", ImVec2(120, 30))) {
+    if (ImGui::Button("Текущий месяц", ImVec2(120, 30))) {
         state.ProcessMonth();
         state.clients_window_show = false;
         state.curr_month++;
@@ -292,9 +292,9 @@ inline void UI::DrawSettingsWindow(GameState& state) {
     ApplyGrayStyle();
     ImGui::SetNextWindowPos(ImVec2(300, 200), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(600, 500), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Insurance Settings", &state.settings_window_show);
+    ImGui::Begin("Настройки страхования", &state.settings_window_show);
 
-    ImGui::TextColored(GRAY_TITLE, "Insurance Conditions Settings");
+    ImGui::TextColored(GRAY_TITLE, "Настройки условий страхования");
     ImGui::Separator();
 
     int total_demand = 0;
@@ -303,10 +303,10 @@ inline void UI::DrawSettingsWindow(GameState& state) {
     }
 
     if (total_demand != 100) {
-        ImGui::TextColored(RED_COLOR, "Total Base Demand: %d%% (should be 100%%)", total_demand);
+        ImGui::TextColored(RED_COLOR, "Итоговый базовый спрос: %d%% (должен быть 100%%)", total_demand);
     }
     else {
-        ImGui::Text("Total Base Demand: 100%%");
+        ImGui::Text("Итоговый базовый спрос: 100%%");
     }
     ImGui::Separator();
 
@@ -314,11 +314,11 @@ inline void UI::DrawSettingsWindow(GameState& state) {
         ImGui::PushID(i);
         ImGui::Text("%s", state.insurances[i].name.c_str());
 
-        ImGui::InputInt("Monthly Fee", &state.insurances[i].new_monthly_fee);
+        ImGui::InputInt("Вознаграждение", &state.insurances[i].new_monthly_fee);
         ImGui::InputInt("Max Payout", &state.insurances[i].new_max_payout);
-        ImGui::InputInt("Contract Duration (months)", &state.insurances[i].contract_duration);
-        ImGui::InputInt("Franchise", &state.insurances[i].franchise);
-        ImGui::InputInt("Base Demand %", &state.insurances[i].base_demand);
+        ImGui::InputInt("Длительность (в месяцах)", &state.insurances[i].contract_duration);
+        ImGui::InputInt("Франшиза", &state.insurances[i].franchise);
+        ImGui::InputInt("Базовый спрос %", &state.insurances[i].base_demand);
 
         state.insurances[i].base_demand = std::max(0, std::min(100, state.insurances[i].base_demand));
 
@@ -327,13 +327,13 @@ inline void UI::DrawSettingsWindow(GameState& state) {
     }
 
     ImGui::NewLine();
-    if (ImGui::Button("Apply", ImVec2(100, 30))) {
+    if (ImGui::Button("Сохранить", ImVec2(100, 30))) {
         state.ApplySettings();
         state.settings_window_show = false;
     }
 
     ImGui::SameLine();
-    if (ImGui::Button("Cancel", ImVec2(100, 30))) {
+    if (ImGui::Button("Отмена", ImVec2(100, 30))) {
         state.settings_window_show = false;
     }
 
@@ -345,23 +345,23 @@ inline void UI::DrawAllInsurancesWindow(GameState& state) {
     ApplyGreenStyle();
     ImGui::SetNextWindowPos(ImVec2(350, 150), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(800, 500), ImGuiCond_FirstUseEver);
-    ImGui::Begin("All Current Insurances", &state.all_insurances_show);
+    ImGui::Begin("Все текущие страховки", &state.all_insurances_show);
 
-    ImGui::TextColored(GREEN_TITLE, "All Active Insurances");
+    ImGui::TextColored(GREEN_TITLE, "Все текущие страховки");
     ImGui::Separator();
 
     if (state.active_contracts.empty()) {
-        ImGui::Text("No active insurances.");
+        ImGui::Text("Нет активных страховок.");
     }
     else {
         ImGui::BeginChild("ContractsTable", ImVec2(0, 400), true);
 
         ImGui::Columns(5);
         ImGui::Text("ID"); ImGui::NextColumn();
-        ImGui::Text("Type"); ImGui::NextColumn();
-        ImGui::Text("Monthly Fee"); ImGui::NextColumn();
+        ImGui::Text("Тип"); ImGui::NextColumn();
+        ImGui::Text("Вознаграждение"); ImGui::NextColumn();
         ImGui::Text("Max Payout"); ImGui::NextColumn();
-        ImGui::Text("Remaining Months"); ImGui::NextColumn();
+        ImGui::Text("Оставш. срок"); ImGui::NextColumn();
         ImGui::Separator();
 
         for (const auto& contract : state.active_contracts) {
@@ -375,7 +375,7 @@ inline void UI::DrawAllInsurancesWindow(GameState& state) {
         ImGui::EndChild();
 
         ImGui::NewLine();
-        ImGui::Text("Total active insurances: %d", (int)state.active_contracts.size());
+        ImGui::Text("Всего текущих страховок: %d", (int)state.active_contracts.size());
     }
 
     ImGui::End();
@@ -385,27 +385,27 @@ inline void UI::DrawAllInsurancesWindow(GameState& state) {
 inline void UI::DrawGameOverWindow(GameState& state) {
     ImGui::SetNextWindowPos(ImVec2(400, 300));
     ImGui::SetNextWindowSize(ImVec2(400, 200));
-    ImGui::Begin("Game Over", nullptr,
+    ImGui::Begin("Игра окончена", nullptr,
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
     if (state.bankrupt) {
         ImGui::TextColored(RED_COLOR, "Bankruptcy!");
         ImGui::Separator();
-        ImGui::TextWrapped("Your company has gone bankrupt and cannot maintain its work.");
+        ImGui::TextWrapped("Ваша компания обанкротилась и не может продолжать работать.");
         //ImGui::NewLine();
         //ImGui::Text("Final balance: %d", state.balance);
     }
     else {
         ImGui::TextColored(GREEN_COLOR, "Win!");
         ImGui::Separator();
-        ImGui::TextWrapped("Your company has been working fine for 24 months! Congrats!");
+        ImGui::TextWrapped("Ваша компания успешно проработала 24 месяца! Поздравляем!");
         ImGui::NewLine();
-        ImGui::Text("Final balance: %d", state.balance);
+        ImGui::Text("Финальный баланс: %d", state.balance);
     }
 
     ImGui::NewLine();
     ImGui::SetCursorPosX(150);
-    if (ImGui::Button("Exit Game", ImVec2(100, 30))) {
+    if (ImGui::Button("Выйти из игры", ImVec2(100, 30))) {
         state.exit_program = true;
     }
 

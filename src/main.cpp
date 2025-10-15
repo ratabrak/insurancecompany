@@ -4,10 +4,30 @@
 #include "GameState.h"
 #include "UI.h"
 
+
+void addRussianSupport(const char *path) {
+	ImGuiIO& io = ImGui::GetIO();
+	io.Fonts->Clear();
+
+	ImFont* font = io.Fonts->AddFontFromFileTTF(
+		path,
+		14.0f,
+		nullptr,
+		io.Fonts->GetGlyphRangesCyrillic()
+	);
+
+	IM_ASSERT(font != nullptr);
+
+	ImGui::SFML::UpdateFontTexture();
+}
+
+
 int main() {
-	sf::RenderWindow window(sf::VideoMode(1200, 800), "Insurance");
+	sf::RenderWindow window(sf::VideoMode({1200, 800}), "Insurance");
 	window.setFramerateLimit(60);
 	ImGui::SFML::Init(window);
+
+	addRussianSupport("path/to/font.ttf");
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowRounding = 8.0f;
@@ -25,10 +45,9 @@ int main() {
 
 	sf::Clock clock_delta;
 	while (window.isOpen() && !game_state.exit_program) {
-		sf::Event event;
-		while (window.pollEvent(event)) {
-			ImGui::SFML::ProcessEvent(event);
-			if (event.type == sf::Event::Closed)
+		while (std::optional event = window.pollEvent()) {
+			ImGui::SFML::ProcessEvent(window, event.value());
+			if (event->is<sf::Event::Closed>())
 				window.close();
 		}
 

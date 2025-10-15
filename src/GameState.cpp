@@ -7,7 +7,7 @@ GameState::GameState() : rng(std::random_device{}()) {
         insurances[i].new_monthly_fee = insurances[i].monthly_fee;
         insurances[i].new_max_payout = insurances[i].max_payout;
     }
-    monthly_events.push_back("Welcome to Insurance Company Simulator!");
+    monthly_events.push_back("Добро пожаловать в симулятор страховой компании!");
 }
 
 void GameState::UpdateStats() {
@@ -131,10 +131,10 @@ void GameState::CalculateMonthlyResults() {
     }
 
     monthly_events.clear();
-    monthly_events.push_back("Monthly income: " + std::to_string(monthly_income));
-    monthly_events.push_back("Income tax paid: " + std::to_string(monthly_tax));
-    monthly_events.push_back("Insurance payouts: " + std::to_string(monthly_payouts));
-    monthly_events.push_back("Total: " + std::to_string(monthly_income - monthly_tax - monthly_payouts));
+    monthly_events.push_back("Месячный доход: " + std::to_string(monthly_income));
+    monthly_events.push_back("Уплаченные налоги: " + std::to_string(monthly_tax));
+    monthly_events.push_back("Страховые случаи: " + std::to_string(monthly_payouts));
+    monthly_events.push_back("Всего: " + std::to_string(monthly_income - monthly_tax - monthly_payouts));
 }
 
 void GameState::ApplySettings() {
@@ -164,6 +164,6 @@ void GameState::AddInsuranceContract(int type, int fee, int payout, int duration
 void GameState::CheckBankruptcy() {
     if (balance < 0) {
         bankrupt = true;
-        monthly_events.push_back("Bankruptcy.");
+        monthly_events.push_back("Банкрот.");
     }
 }
