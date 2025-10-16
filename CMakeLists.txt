@@ -16,5 +16,5 @@ file(GLOB insurance_src
 message(${insurance_src})
 
 add_executable(insurance ${insurance_src})
-target_link_libraries(insurance PRIVATE ImGui-SFML::ImGui-SFML SFML::Window SFML::Graphics SFML::System)
+target_link_libraries(insurance PRIVATE ImGui-SFML::ImGui-SFML SFML::Window SFML::Graphics SFML::System SFML::Audio)
 

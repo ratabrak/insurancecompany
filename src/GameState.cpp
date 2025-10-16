@@ -1,4 +1,5 @@
 #include "GameState.h"
+#include "InsuranceSystem.h"
 #include <random>
 #include <algorithm>
 
@@ -7,7 +8,7 @@ GameState::GameState() : rng(std::random_device{}()) {
         insurances[i].new_monthly_fee = insurances[i].monthly_fee;
         insurances[i].new_max_payout = insurances[i].max_payout;
     }
-    monthly_events.push_back("Добро пожаловать в симулятор страховой компании!");
+    monthly_events.push_back("Приветствуем! Ваша задача - проработать 24 месяца и не обанкротиться!");
 }
 
 void GameState::UpdateStats() {
@@ -33,6 +34,19 @@ void GameState::UpdateStats() {
 }
 
 void GameState::ProcessMonth() {
+    for (const auto& client : current_clients) {
+        if (client.approved && client.insurance_type >= 0 && client.insurance_type < 3) {
+            AddInsuranceContract(
+                client.insurance_type,
+                InsuranceSystem::CalculateMonthlyFee(insurances[client.insurance_type], client.risk_factor),
+                client.coverage,
+                insurances[client.insurance_type].contract_duration,
+                client.risk_factor,
+                insurances[client.insurance_type].franchise
+            );
+        }
+    }
+
     monthly_income = 0;
     for (const auto& contract : active_contracts) {
         monthly_income += contract.monthly_fee;
@@ -54,35 +68,28 @@ void GameState::ProcessMonth() {
         }
     }
 
-    for (const auto& client : current_clients) {
-        if (client.approved && client.insurance_type >= 0 && client.insurance_type < 3) {
-            AddInsuranceContract(
-                client.insurance_type,
-                insurances[client.insurance_type].monthly_fee,
-                insurances[client.insurance_type].max_payout,
-                insurances[client.insurance_type].contract_duration,
-                client.risk_factor,
-                insurances[client.insurance_type].franchise
-            );
-        }
-    }
-
     UpdateStats();
     current_clients.clear();
 
     CheckBankruptcy();
+    CheckWinCondition();
 }
 
 void GameState::GenerateClients() {
     current_clients.clear();
     std::uniform_int_distribution<int> client_count(2, 5);
     std::uniform_real_distribution<float> risk(0.1f, 10.0f);
+    std::uniform_real_distribution<float> coverage_ratio(0.9f, 1.1f);
 
     int num_clients = client_count(rng);
     for (int i = 0; i < num_clients; ++i) {
         Client client;
         client.insurance_type = CalculateWeightedInsuranceType();
         client.risk_factor = risk(rng);
+
+        float ratio = coverage_ratio(rng);
+        client.coverage = static_cast<int>(insurances[client.insurance_type].max_payout * ratio);
+
         current_clients.push_back(client);
     }
 }
@@ -131,10 +138,10 @@ void GameState::CalculateMonthlyResults() {
     }
 
     monthly_events.clear();
-    monthly_events.push_back("Месячный доход: " + std::to_string(monthly_income));
-    monthly_events.push_back("Уплаченные налоги: " + std::to_string(monthly_tax));
-    monthly_events.push_back("Страховые случаи: " + std::to_string(monthly_payouts));
-    monthly_events.push_back("Всего: " + std::to_string(monthly_income - monthly_tax - monthly_payouts));
+    monthly_events.push_back("Месячный доход (руб./мес.): " + std::to_string(monthly_income));
+    monthly_events.push_back("Уплаченные налоги (руб.): " + std::to_string(monthly_tax));
+    monthly_events.push_back("Страховые случаи (шт.): " + std::to_string(monthly_payouts));
+    monthly_events.push_back("Всего (руб.): " + std::to_string(monthly_income - monthly_tax - monthly_payouts));
 }
 
 void GameState::ApplySettings() {
@@ -165,5 +172,11 @@ void GameState::CheckBankruptcy() {
     if (balance < 0) {
         bankrupt = true;
         monthly_events.push_back("Банкрот.");
+    }
+}
+
+void GameState::CheckWinCondition() {
+    if (curr_month >= 24 && !bankrupt) {
+        win = true;
     }
 }

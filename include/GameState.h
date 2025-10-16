@@ -31,6 +31,7 @@ struct Client {
     int insurance_type = -1;
     bool approved = false;
     float risk_factor = 0;
+    int coverage = 0;
 };
 
 struct GameState {
@@ -46,6 +47,7 @@ struct GameState {
     bool settings_window_show = false;
     bool all_insurances_show = false;
     bool bankrupt = false;
+    bool win = false;
     bool exit_program = false;
     std::vector<std::string> monthly_events;
     std::vector<Client> current_clients;
@@ -54,9 +56,9 @@ struct GameState {
     float income_tax_rate = 0.09f;
 
     InsuranceType insurances[3] = {
-        {"дома", 0, 1000000, 15000, 15000, 1000000, 12, 0, 40},
-        {"машины", 0, 1000000, 15000, 15000, 1000000, 12, 0, 35},
-        {"здоровья", 0, 1000000, 15000, 15000, 1000000, 12, 0, 25}
+        {"Дом", 0, 1000000, 15000, 15000, 1000000, 12, 0, 40},
+        {"Машина", 0, 1000000, 15000, 15000, 1000000, 12, 0, 35},
+        {"Здоровье", 0, 1000000, 15000, 15000, 1000000, 12, 0, 25}
     };
 
     std::mt19937 rng;
@@ -72,4 +74,5 @@ struct GameState {
     int CalculateWeightedInsuranceType();
     void AddInsuranceContract(int type, int fee, int payout, int duration, float risk, int franchise);
     void CheckBankruptcy();
+    void CheckWinCondition();
 };
