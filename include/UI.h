@@ -127,12 +127,12 @@ inline void UI::DrawMainUI(GameState& state) {
         ImGui::Text("Выплаты за месяц: %d руб.", state.monthly_payouts);
     }
 
-    int net_result = state.monthly_income - state.monthly_payouts;
+    int net_result = state.monthly_income - state.monthly_tax - state.monthly_payouts;
     if (net_result >= 0) {
         ImGui::TextColored(GREEN_COLOR, "Прибыль: %d руб.", net_result);
     }
     else {
-        ImGui::TextColored(RED_COLOR, "Убыток: %d руб.", net_result);
+        ImGui::TextColored(RED_COLOR, "Убыток: %d руб.", -net_result);
     }
 
     ImGui::Text("Всего застраховано: %d чел.", state.total_insured);
@@ -314,12 +314,46 @@ inline void UI::DrawSettingsWindow(GameState& state) {
         ImGui::PushID(i);
         ImGui::Text("%s", state.insurances[i].name.c_str());
 
-        ImGui::InputInt("Стоимость (руб./мес.)", &state.insurances[i].new_monthly_fee);
-        ImGui::InputInt("Покрытие (руб.)", &state.insurances[i].new_max_payout);
-        ImGui::InputInt("Срок (мес.)", &state.insurances[i].contract_duration);
-        ImGui::InputInt("Франшиза (руб.)", &state.insurances[i].franchise);
-        ImGui::InputInt("Спрос (%)", &state.insurances[i].base_demand);
+        auto coverage_limits = state.GetCoverageLimits(i);
+        auto fee_limits = state.GetFeeLimits(state.insurances[i].new_max_payout);
+        int max_duration = state.GetMaxContractDuration();
+        int max_franchise = state.insurances[i].new_max_payout / 2;
 
+        ImGui::InputInt("Покрытие (руб.)", &state.insurances[i].new_max_payout);
+        if (state.insurances[i].new_max_payout < coverage_limits.first) {
+            state.insurances[i].new_max_payout = coverage_limits.first;
+        }
+        else if (state.insurances[i].new_max_payout > coverage_limits.second) {
+            state.insurances[i].new_max_payout = coverage_limits.second;
+        }
+
+        fee_limits = state.GetFeeLimits(state.insurances[i].new_max_payout);
+
+        ImGui::InputInt("Стоимость (руб./мес.)", &state.insurances[i].new_monthly_fee);
+        if (state.insurances[i].new_monthly_fee < fee_limits.first) {
+            state.insurances[i].new_monthly_fee = fee_limits.first;
+        }
+        else if (state.insurances[i].new_monthly_fee > fee_limits.second) {
+            state.insurances[i].new_monthly_fee = fee_limits.second;
+        }
+
+        ImGui::InputInt("Срок (мес.)", &state.insurances[i].contract_duration);
+        if (state.insurances[i].contract_duration < 1) {
+            state.insurances[i].contract_duration = 1;
+        }
+        else if (state.insurances[i].contract_duration > max_duration) {
+            state.insurances[i].contract_duration = max_duration;
+        }
+
+        ImGui::InputInt("Франшиза (руб.)", &state.insurances[i].franchise);
+        if (state.insurances[i].franchise < 0) {
+            state.insurances[i].franchise = 0;
+        }
+        else if (state.insurances[i].franchise > max_franchise) {
+            state.insurances[i].franchise = max_franchise;
+        }
+
+        ImGui::InputInt("Спрос (%)", &state.insurances[i].base_demand);
         state.insurances[i].base_demand = std::max(0, std::min(100, state.insurances[i].base_demand));
 
         if (i < 2) ImGui::Separator();
@@ -362,11 +396,12 @@ inline void UI::DrawAllInsurancesWindow(GameState& state) {
     else {
         ImGui::BeginChild("ContractsTable", ImVec2(0, 400), true);
 
-        ImGui::Columns(5);
+        ImGui::Columns(6);
         ImGui::Text("ID"); ImGui::NextColumn();
         ImGui::Text("Тип"); ImGui::NextColumn();
         ImGui::Text("Стоимость (руб./мес.)"); ImGui::NextColumn();
         ImGui::Text("Покрытие (руб.)"); ImGui::NextColumn();
+        ImGui::Text("Риск клиента (%)"); ImGui::NextColumn();
         ImGui::Text("Оставш. срок (мес.)"); ImGui::NextColumn();
         ImGui::Separator();
 
@@ -375,12 +410,28 @@ inline void UI::DrawAllInsurancesWindow(GameState& state) {
             ImGui::Text("%s", state.insurances[contract.type].name.c_str()); ImGui::NextColumn();
             ImGui::Text("%d", contract.monthly_fee); ImGui::NextColumn();
             ImGui::Text("%d", contract.max_payout); ImGui::NextColumn();
+            ImGui::Text("%.1f", contract.client_risk); ImGui::NextColumn();
             ImGui::Text("%d/%d", contract.remaining_months, contract.duration); ImGui::NextColumn();
         }
 
         ImGui::EndChild();
 
+        int low_risk = 0, medium_risk = 0, high_risk = 0;
+        for (const auto& contract : state.active_contracts) {
+            if (contract.client_risk < 1.0f) {
+                low_risk++;
+            } else if (contract.client_risk < 5.0f) {
+                medium_risk++;
+            } else {
+                high_risk++;
+            }
+        }
+
         ImGui::NewLine();
+        ImGui::Text("Статистика по рискам:");
+        ImGui::Text("  Низкий риск (0.1-1%%): %d клиентов", low_risk);
+        ImGui::Text("  Средний риск (1-5%%): %d клиентов", medium_risk);
+        ImGui::Text("  Высокий риск (5-10%%): %d клиентов", high_risk);
         ImGui::Text("Всего страховок: %d", (int)state.active_contracts.size());
     }
 

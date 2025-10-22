@@ -87,8 +87,10 @@ void GameState::GenerateClients() {
         client.insurance_type = CalculateWeightedInsuranceType();
         client.risk_factor = risk(rng);
 
+        auto coverage_limits = GetCoverageLimits(client.insurance_type);
         float ratio = coverage_ratio(rng);
         client.coverage = static_cast<int>(insurances[client.insurance_type].max_payout * ratio);
+        client.coverage = std::max(coverage_limits.first, std::min(coverage_limits.second, client.coverage));
 
         current_clients.push_back(client);
     }
@@ -116,13 +118,16 @@ int GameState::CalculateWeightedInsuranceType() {
 
 void GameState::CalculateMonthlyResults() {
     monthly_payouts = 0;
+    monthly_cases = 0;
     std::uniform_real_distribution<float> random_percent(0.1f, 100.0f);
-    std::uniform_real_distribution<float> damage_ratio(0.0f, 1.0f);
+    std::uniform_real_distribution<float> damage_ratio(0.6f, 1.0f);
 
     for (const auto& contract : active_contracts) {
         float random_value = random_percent(rng);
 
         if (random_value <= contract.client_risk) {
+            monthly_cases++;
+
             float damage = damage_ratio(rng);
             int payout = static_cast<int>(contract.max_payout * damage);
 
@@ -140,12 +145,30 @@ void GameState::CalculateMonthlyResults() {
     monthly_events.clear();
     monthly_events.push_back("Месячный доход (руб./мес.): " + std::to_string(monthly_income));
     monthly_events.push_back("Уплаченные налоги (руб.): " + std::to_string(monthly_tax));
-    monthly_events.push_back("Страховые случаи (шт.): " + std::to_string(monthly_payouts));
+    monthly_events.push_back("Количество страховых случаев: " + std::to_string(monthly_cases));
+    monthly_events.push_back("Страховые выплаты (руб.): " + std::to_string(monthly_payouts));
     monthly_events.push_back("Всего (руб.): " + std::to_string(monthly_income - monthly_tax - monthly_payouts));
 }
 
 void GameState::ApplySettings() {
     for (int i = 0; i < 3; i++) {
+        auto coverage_limits = GetCoverageLimits(i);
+        insurances[i].new_max_payout = std::max(coverage_limits.first,
+                                              std::min(coverage_limits.second,
+                                                       insurances[i].new_max_payout));
+
+        auto fee_limits = GetFeeLimits(insurances[i].new_max_payout);
+        insurances[i].new_monthly_fee = std::max(fee_limits.first,
+                                               std::min(fee_limits.second,
+                                                        insurances[i].new_monthly_fee));
+
+        if (!IsValidFranchise(insurances[i].franchise, insurances[i].new_max_payout)) {
+            insurances[i].franchise = insurances[i].new_max_payout / 2;
+        }
+
+        int max_duration = GetMaxContractDuration();
+        insurances[i].contract_duration = std::max(1, std::min(max_duration, insurances[i].contract_duration));
+
         insurances[i].monthly_fee = insurances[i].new_monthly_fee;
         insurances[i].max_payout = insurances[i].new_max_payout;
     }
@@ -179,4 +202,27 @@ void GameState::CheckWinCondition() {
     if (curr_month >= 24 && !bankrupt) {
         win = true;
     }
+}
+
+bool GameState::IsValidFranchise(int franchise, int max_payout) {
+    return franchise <= max_payout / 2;
+}
+
+std::pair<int, int> GameState::GetCoverageLimits(int insurance_type) {
+    switch (insurance_type) {
+        case 0: return {1000000, 3000000};
+        case 1: return {500000, 1500000};
+        case 2: return {250000, 1000000};
+        default: return {0, 0};
+    }
+}
+
+std::pair<int, int> GameState::GetFeeLimits(int max_payout) {
+    int min_fee = static_cast<int>(max_payout * 0.001);
+    int max_fee = static_cast<int>(max_payout * 0.02);
+    return {min_fee, max_fee};
+}
+
+int GameState::GetMaxContractDuration() {
+    return 25 - curr_month;
 }

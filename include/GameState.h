@@ -41,6 +41,7 @@ struct GameState {
     int monthly_income = 0;
     int monthly_payouts = 0;
     int monthly_tax = 0;
+    int monthly_cases = 0;
     int curr_month = 1;
     bool event_window_show = true;
     bool clients_window_show = false;
@@ -75,4 +76,9 @@ struct GameState {
     void AddInsuranceContract(int type, int fee, int payout, int duration, float risk, int franchise);
     void CheckBankruptcy();
     void CheckWinCondition();
+
+    bool IsValidFranchise(int franchise, int max_payout);
+    std::pair<int, int> GetCoverageLimits(int insurance_type);
+    std::pair<int, int> GetFeeLimits(int max_payout);
+    int GetMaxContractDuration();
 };
