@@ -44,11 +44,11 @@ int main() {
     sf::Texture background_texture;
     sf::Texture game_over_texture;
 
-    if (!background_texture.loadFromFile("HelpyMain.png")) {
+    if (!background_texture.loadFromFile("C:\\Users\\Admin\\CLionProjects\\cjj\\insurancecompany\\media\\HelpyMain.png")) {
         return -1;
     }
 
-    if (!game_over_texture.loadFromFile("HelpyLost.png")) {
+    if (!game_over_texture.loadFromFile("C:\\Users\\Admin\\CLionProjects\\cjj\\insurancecompany\\media\\HelpyLost.png")) {
         return -1;
     }
 
@@ -65,7 +65,7 @@ int main() {
         800.0f / game_over_texture.getSize().y}
     );
 
-    std::vector<std::string> music_files = {"Helpy1.mp3", "Helpy2.mp3"};
+    std::vector<std::string> music_files = {"C:\\Users\\Admin\\CLionProjects\\cjj\\insurancecompany\\media\\Helpy1.mp3", "C:\\Users\\Admin\\CLionProjects\\cjj\\insurancecompany\\media\\Helpy2.mp3"};
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, music_files.size() - 1);
